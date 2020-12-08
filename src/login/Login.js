@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState } from 'react'
 import { Text, View, StyleSheet } from 'react-native'
 import { Button, Input } from 'react-native-elements';
 import loginContext from '../context/loginContext';
+import api from '../api'
+import toast from 'react-native-tiny-toast'
 
 export default props => {
 
@@ -12,7 +14,7 @@ export default props => {
 
     useEffect(() => {
         if(props.route.params?.email) {
-            setUsuario({...state, email: props.route.params?.email});
+            setUsuario({...usuario, email: props.route.params?.email});
         }
     }, [props.route.params?.email])
 
@@ -21,11 +23,15 @@ export default props => {
     }
 
     let login = () => {
-        dispatch({
-            type: 'Login',
-            payload: usuario
-        })
-    }
+            api.post('/login', usuario).then(res => {
+                dispatch({
+                    type: 'Login',
+                    payload: res.data
+                })
+            }).catch(e => {
+                toast.show(e.response.data, { containerStyle: { backgroundColor: "rgb(130,0,0)" } });
+            })    
+        }
 
     return (
 

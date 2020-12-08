@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
-import { StyleSheet, Text, View, KeyboardAvoidingView, Alert } from 'react-native'
+import { StyleSheet, Text, View, KeyboardAvoidingView } from 'react-native'
 import { Button, Input } from 'react-native-elements';
+import api from '../api';
+import toast from 'react-native-tiny-toast'
 
 export default props => {
 
@@ -13,12 +15,17 @@ export default props => {
     }
     
     let salvarUsuario = () => {
-        if(usuario.nome === "" || usuario.cpf === "" || usuario.email === "" || usuario.senha === "" || usuario.confirmeSenha === "") {
-            Alert.alert('Preencha todos os campos!', 'Existem Campos em Branco.')
+        if(usuario.nome === "" || usuario.cnpj === "" || usuario.email === "" || usuario.senha === "" || usuario.confirmeSenha === "") {
+            toast.show('Por favor, preencha todos os campos!', { containerStyle: { backgroundColor: "rgb(130,0,0)" } });
         } else if(usuario.confirmeSenha !== usuario.senha) {
-            Alert.alert('Senhas não coincidem!', 'Os campos senha e confirmação de senha não são iguais! Preencha novamente')
+            toast.show('Senha e confirmação de senha diferentes!', { containerStyle: { backgroundColor: "rgb(130,0,0)" } });
         } else {
-            navigation.navigate('Login', {email: usuario.email});
+            api.post('/cadastrar', usuario).then(res => {
+                navigation.navigate('Login', {email: usuario.email});
+                toast.showSuccess(res.data, { containerStyle: { backgroundColor: "green" } });
+            }).catch(e => {
+                toast.show(e.response.data, { containerStyle: { backgroundColor: "rgb(130,0,0)" } });
+            })    
         }
     }
 
