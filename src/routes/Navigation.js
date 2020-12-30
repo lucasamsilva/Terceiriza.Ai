@@ -5,10 +5,16 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import Login from '../login/Login'
 import CadastroPF from '../login/CadastroPF'
 import CadastroPJ from '../login/CadastroPJ'
-import TelaInicial from '../views/TelaInicial'
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItem, DrawerItemList } from '@react-navigation/drawer'
 import loginContext from '../context/loginContext'
 import { Icon } from 'react-native-elements'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import EmpregosNavigation from '../views/Empregos/EmpregosNavigation'
+import TelaLoading from '../views/TelaLoading'
+import FormEmprego from '../views/Empregos/FormEmprego'
+import EmpregosUsuarios from '../views/Empregos/EmpregosUsuario'
+import TerceirizadoNavigation from '../views/Terceirizados/TerceirizadoNavigation'
+import FormTerceirizado from '../views/Terceirizados/FormTerceirizado'
 
 const Stack = createStackNavigator();
 const Draw = createDrawerNavigator();
@@ -19,7 +25,17 @@ export default props => {
 
     const { state, dispatch } = useContext(loginContext);
 
+    removeValue = async () => {
+        try {
+            await AsyncStorage.removeItem('@terceirizaai_token')
+        } catch (e) {
+            // remove error
+        }
+    }
+
+
     const logout = () => {
+        removeValue();
         dispatch({
             type: 'Logout'
         })
@@ -38,7 +54,7 @@ export default props => {
     const Cadastro = () => {
         return (
             <Tab.Navigator screenOptions={({ route }) => ({
-                tabBarIcon: ({ focused, color, size}) => {
+                tabBarIcon: ({ focused, color, size }) => {
                     let iconName;
                     let iconColor;
 
@@ -56,7 +72,7 @@ export default props => {
                     }
                     return <Icon name={iconName} color={iconColor} type='font-awesome' />
                 },
-            })} tabBarOptions={{ tabStyle: { padding: 5 },labelStyle: { fontSize: 16 } }} >
+            })} tabBarOptions={{ tabStyle: { padding: 5 }, labelStyle: { fontSize: 16 } }} >
                 <Tab.Screen name="Pessoa Física" component={CadastroPF} ></Tab.Screen>
                 <Tab.Screen name="Pessoa Jurídica" component={CadastroPJ} ></Tab.Screen>
             </Tab.Navigator>
@@ -64,19 +80,35 @@ export default props => {
     }
 
     const renderNav = (props) => {
+        if (state.loading) {
+            return <TelaLoading />
+        }
         if (!state.logado) {
             return (
-                <Stack.Navigator initialRouteName="Login">
+                <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: !state.loading }}>
                     <Stack.Screen name="Login" component={Login} />
                     <Stack.Screen name="Cadastro" component={Cadastro} />
                 </Stack.Navigator>
             )
         } else {
-            return (
-                <Draw.Navigator initialRouteName="Início" drawerContent={props => drawerOptions(props)}>
-                    <Draw.Screen name="Início" component={TelaInicial} />
-                </Draw.Navigator>
-            )
+            if (state.cpf) {
+                return (
+                    <Draw.Navigator initialRouteName="Buscar Vagas" drawerContent={props => drawerOptions(props)}>
+                        <Draw.Screen name="Buscar Vagas" component={EmpregosNavigation} />
+                        <Draw.Screen name="Buscar Prestadores de Serviço" component={TerceirizadoNavigation} />
+                        <Draw.Screen name="Cadastro Prestador de Serviço" component={FormTerceirizado} />
+                    </Draw.Navigator>
+                )
+            }
+            else {
+                return (
+                    <Draw.Navigator initialRouteName="Buscar Prestadores de Serviço" drawerContent={props => drawerOptions(props)}>
+                        <Draw.Screen name="Buscar Prestadores de Serviço" component={TerceirizadoNavigation} />
+                        <Draw.Screen name="Cadastrar Nova Vaga" component={FormEmprego} />
+                        <Draw.Screen name="Minhas Vagas" component={EmpregosUsuarios} />
+                    </Draw.Navigator>
+                )
+            }
         }
     }
 
