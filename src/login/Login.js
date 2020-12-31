@@ -36,14 +36,15 @@ export default props => {
     let login = () => {
         setEntrando(true)
         api.post('/login', usuario).then(res => {
+            api.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`
             dispatch({
                 type: 'Login',
                 payload: res.data
             })
             storeData(res.data)
-        }).catch(e => {
+        }).catch(err => {
             setEntrando(false);
-            toast.show(e.response.data, { containerStyle: { backgroundColor: "rgb(130,0,0)" } });
+            toast.show(err.response.data, { containerStyle: { backgroundColor: "rgb(130,0,0)" } });
         })
     }
 

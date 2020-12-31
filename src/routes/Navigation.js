@@ -82,8 +82,7 @@ export default props => {
     const renderNav = (props) => {
         if (state.loading) {
             return <TelaLoading />
-        }
-        if (!state.logado) {
+        } else if (!state.logado) {
             return (
                 <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: !state.loading }}>
                     <Stack.Screen name="Login" component={Login} />
@@ -95,7 +94,6 @@ export default props => {
                 return (
                     <Draw.Navigator initialRouteName="Buscar Vagas" drawerContent={props => drawerOptions(props)}>
                         <Draw.Screen name="Buscar Vagas" component={EmpregosNavigation} />
-                        <Draw.Screen name="Buscar Prestadores de Serviço" component={TerceirizadoNavigation} />
                         <Draw.Screen name="Cadastro Prestador de Serviço" component={FormTerceirizado} />
                     </Draw.Navigator>
                 )

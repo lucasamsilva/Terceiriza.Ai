@@ -14,8 +14,9 @@ export default props => {
     const { navigation } = props
 
     useEffect(() => {
+        console.log(api.defaults.headers.common)
         navigation.addListener('focus', () => {
-            api.get('/empregos').then(data => setEmpregos(data.data)).catch(err => Toast.show(err));
+            api.get('/empregos').then(data => {setEmpregos(data.data)}).catch(err => Toast.show(err));
           });
     }, [navigation])
 

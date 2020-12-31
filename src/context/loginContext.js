@@ -1,4 +1,5 @@
 import React, { createContext, useReducer } from 'react'
+import api from '../api';
 
 const initialState = { logado: false, loading: true };
 const loginContext = createContext({});
@@ -7,7 +8,8 @@ function reducer(state, action) {
     switch (action.type) {
         case 'Login':
             const { token, id, cpf, cnpj} = action.payload;
-            console.log(action.payload);
+            console.log(token)
+            // api.defaults.headers.commom['Authorization'] = 'Bearer' + token;
             return {
                 ...state,
                 logado: true,
